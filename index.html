@@ -43,6 +43,7 @@
         <button id="btn-reset" class="btn-secondary">Reset</button>
         <button id="btn-generate-tokens" class="btn-secondary">Generate Tokens</button>
         <button id="btn-generate-nfa" class="btn-primary">Generate NFA</button>
+        <button id="btn-generate-dfa" class="btn-primary ml-1">Generate DFA</button>
       </div>
     </header>
 
@@ -59,6 +60,7 @@
             <div class="text-xs text-zinc-500 font-mono">input.js</div>
           </div>
           <div class="relative flex-1 rounded-lg border border-borderSubtle bg-[#0e0e11] overflow-hidden group">
+            <pre aria-hidden="true" class="absolute inset-0 w-full h-full m-0 p-4 overflow-hidden pointer-events-none"><code id="code-suggestion" class="language-clike text-zinc-600"></code></pre>
             <textarea id="code-input" class="absolute inset-0 w-full h-full p-4 bg-transparent text-transparent caret-[#3b82f6] resize-none outline-none z-10" spellcheck="false">int x = 10 + y;</textarea>
             <pre aria-hidden="true" class="absolute inset-0 w-full h-full m-0 p-4 overflow-hidden pointer-events-none text-zinc-300"><code id="code-highlight" class="language-clike">int x = 10 + y;</code></pre>
           </div>
@@ -88,10 +90,10 @@
       <!-- Right Panel -->
       <section id="right-panel" class="flex-1 flex flex-col gap-4 md:gap-0 overflow-y-auto px-2 min-w-[250px]">
         
-        <!-- NFA Visualization -->
+        <!-- NFA/DFA Visualization -->
         <div id="nfa-card" class="glass-card flex flex-col flex-[1.5] min-h-[200px] relative overflow-hidden shrink-0 mt-4 md:mt-6">
           <div class="px-4 py-3 border-b border-borderSubtle flex justify-between items-center bg-bgCard">
-            <h2 class="text-sm font-semibold text-zinc-100">NFA Visualization</h2>
+            <h2 id="viz-title" class="text-sm font-semibold text-zinc-100">NFA Visualization</h2>
             <div class="flex items-center gap-3">
               <div class="text-[10px] text-zinc-500 font-mono tracking-wider uppercase">Vis.Network</div>
               <button id="btn-fullscreen" class="text-zinc-500 hover:text-zinc-300 transition-colors" title="Toggle Fullscreen">
@@ -163,6 +165,95 @@
 
       </section>
     </main>
+
+    <!-- Floating AI Chatbot Container -->
+    <div id="ai-chat-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
+      <!-- Chat Window -->
+      <div id="ai-chat-window" class="w-[380px] h-[520px] bg-bgCard/95 border border-borderSubtle backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden transition-all duration-300 ease-out transform scale-95 opacity-0 translate-y-10 pointer-events-none mb-4">
+        <!-- Chat Header -->
+        <div class="px-4 py-3 bg-zinc-900/80 border-b border-borderSubtle flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 logo-container">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-zinc-100 text-left">Lexi AI Assistant</h3>
+              <p class="text-[10px] text-zinc-400 text-left">Rules &amp; Regex Helper • Gemini</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-1.5">
+            <!-- Settings Gear Button -->
+            <button id="btn-chat-settings" class="text-zinc-400 hover:text-zinc-200 transition-colors p-1 hover:bg-zinc-850 rounded-md cursor-pointer" title="AI Settings">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+
+            <!-- Close Button -->
+            <button id="btn-close-chat" class="text-zinc-400 hover:text-zinc-200 transition-colors p-1 hover:bg-zinc-850 rounded-md text-lg leading-none cursor-pointer">
+              &times;
+            </button>
+          </div>
+        </div>
+
+        <!-- Settings Drawer Panel -->
+        <div id="chat-settings-panel" class="px-4 py-3 bg-zinc-900 border-b border-borderSubtle flex flex-col gap-2 shrink-0 transition-all duration-300 overflow-hidden h-0 opacity-0 select-none">
+          <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-400 text-left">Gemini API Key</label>
+          <div class="flex gap-2">
+            <input id="chat-api-key-input" type="password" placeholder="AIzaSy..." class="flex-1 bg-[#0b0b0d] border border-borderSubtle rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 outline-none focus:border-zinc-500 transition-colors font-mono" />
+            <button id="btn-save-chat-key" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-lg transition-colors cursor-pointer shrink-0">Save</button>
+          </div>
+          <p class="text-[9px] text-zinc-500 font-sans leading-relaxed text-left">Your API key is saved locally in your browser's <code>localStorage</code>. It is completely secure and is never sent to any external server besides Google Gemini.</p>
+        </div>
+
+        <!-- Messages container -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-[#0f0f12]/50">
+          <!-- Initial AI greeting -->
+          <div class="flex items-start gap-2.5 max-w-[85%]">
+            <div class="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center shrink-0 text-[10px] text-blue-400 font-bold border border-zinc-700">🤖</div>
+            <div class="bg-zinc-900 border border-zinc-800/80 rounded-2xl rounded-tl-none px-3.5 py-2.5 text-xs text-zinc-300 leading-relaxed shadow-sm text-left">
+              Hello! I'm <strong>Lexi</strong>, your compiler design assistant. 
+              <br><br>
+              Need a regular expression for a specific token? Ask me things like:
+              <ul class="list-disc list-inside mt-2 space-y-1 text-zinc-400">
+                <li><em>"regex for float numbers"</em></li>
+                <li><em>"how to match strings in double quotes"</em></li>
+                <li><em>"pattern for C comments"</em></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Presets quick actions -->
+        <div id="chat-presets" class="px-4 py-2 border-t border-borderSubtle bg-zinc-900/30 flex gap-2 overflow-x-auto whitespace-nowrap mask-edges custom-scrollbar shrink-0 select-none">
+          <button class="chat-chip text-[10px] px-2.5 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-zinc-300 transition-colors cursor-pointer shrink-0">Regex for Float?</button>
+          <button class="chat-chip text-[10px] px-2.5 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-zinc-300 transition-colors cursor-pointer shrink-0">Hexadecimal pattern?</button>
+          <button class="chat-chip text-[10px] px-2.5 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-zinc-300 transition-colors cursor-pointer shrink-0">String matching?</button>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="p-3 border-t border-borderSubtle bg-zinc-900/80 flex gap-2 items-center shrink-0">
+          <input id="chat-input" type="text" placeholder="Ask Lexi about regex..." class="flex-1 bg-[#0b0b0d] border border-borderSubtle rounded-lg px-3 py-2 text-xs text-zinc-200 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all font-mono" />
+          <button id="btn-send-chat" class="p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-all flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/10 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Glowing FAB Button -->
+      <button id="btn-toggle-chat" class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 border border-blue-400/20 text-white flex items-center justify-center shadow-[0_8px_30px_rgba(99,102,241,0.5)] transition-all duration-300 active:scale-95 group hover:shadow-[0_8px_40px_rgba(139,92,246,0.7)] hover:translate-y-[-2px] cursor-pointer">
+        <!-- AI Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+      </button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>

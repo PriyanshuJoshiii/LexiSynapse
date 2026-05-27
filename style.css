@@ -165,3 +165,42 @@ textarea#code-input {
 .animate-fade-in-up {
   animation: fade-in-up 0.4s ease-out forwards;
 }
+
+/* Chatbot Custom Styles */
+#ai-chat-window.active {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) !important;
+  pointer-events: auto !important;
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #a1a1aa;
+  animation: typing-bounce 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing-bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
+@keyframes float-breath {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+#btn-toggle-chat {
+  animation: float-breath 4s ease-in-out infinite;
+}
+
+#chat-settings-panel.active {
+  height: 102px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  user-select: auto !important;
+}
+

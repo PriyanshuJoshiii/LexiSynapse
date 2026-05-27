@@ -32,12 +32,28 @@ function tokenizeRegex(str) {
   let i = 0;
   while (i < str.length) {
     const char = str[i];
+    
+    // Support non-capturing groups (?: by mapping them to (
+    if (str.substring(i, i + 3) === '(?:') {
+      tokens.push('(');
+      i += 3;
+      continue;
+    }
+
     if (char === '\\') { // Escape sequence
       tokens.push(str.substring(i, i + 2));
       i += 2;
     } else if (char === '[') { // Character class
-      let j = i;
-      while (j < str.length && str[j] !== ']') j++;
+      let j = i + 1;
+      while (j < str.length) {
+        if (str[j] === '\\') {
+          j += 2; // skip backslash and next char
+        } else if (str[j] === ']') {
+          break; // end of class
+        } else {
+          j++;
+        }
+      }
       if (j < str.length) {
         tokens.push(str.substring(i, j + 1));
         i = j + 1;
@@ -54,7 +70,7 @@ function tokenizeRegex(str) {
   return tokens;
 }
 
-// Insert explicit concatenation operator '.'
+// Insert explicit concatenation operator '\u0000'
 // Concat is needed between T1 and T2 if:
 // T1 is literal, class, *, +, ?, )
 // T2 is literal, class, (
@@ -65,11 +81,11 @@ function insertExplicitConcat(tokens) {
     output.push(t1);
     if (i < tokens.length - 1) {
       const t2 = tokens[i + 1];
-      const t1IsOperandOrPostfix = !['|', '(', '.'].includes(t1);
-      const t2IsOperandOrPrefix = !['|', '*', '+', '?', ')', '.'].includes(t2);
+      const t1IsOperandOrPostfix = !['|', '(', '\u0000'].includes(t1);
+      const t2IsOperandOrPrefix = !['|', '*', '+', '?', ')', '\u0000'].includes(t2);
       
       if (t1IsOperandOrPostfix && t2IsOperandOrPrefix) {
-        output.push('.');
+        output.push('\u0000');
       }
     }
   }
@@ -80,7 +96,7 @@ function insertExplicitConcat(tokens) {
 function infixToPostfix(tokens) {
   const precedence = {
     '|': 1,
-    '.': 2,
+    '\u0000': 2,
     '*': 3,
     '+': 3,
     '?': 3
@@ -96,7 +112,7 @@ function infixToPostfix(tokens) {
         output.push(stack.pop());
       }
       stack.pop(); // pop '('
-    } else if (['*', '+', '?', '|', '.'].includes(token)) {
+    } else if (['*', '+', '?', '|', '\u0000'].includes(token)) {
       while (stack.length > 0 && stack[stack.length - 1] !== '(' && precedence[stack[stack.length - 1]] >= precedence[token]) {
         output.push(stack.pop());
       }
@@ -130,7 +146,7 @@ export function buildNFAFromRegex(regexStr) {
     const stack = [];
     
     for (const token of postfix) {
-      if (token === '.') {
+      if (token === '\u0000') {
         const right = stack.pop();
         const left = stack.pop();
         // left accept state transitions to right start state via epsilon
@@ -187,6 +203,7 @@ export function buildNFAFromRegex(regexStr) {
     return new NFA(st, st);
   }
 }
+
 
 // Build standard Master Lexer NFA that runs all rules
 export function buildLexerNFA(rules) {
@@ -246,9 +263,36 @@ export function findPath(startState, acceptStatesMap, targetType, tokenValue) {
     }
 
     // Try symbol transitions
-    if (charIndex < tokenValue.length) {
-      const char = tokenValue[charIndex];
-      for (const symbol in currentState.transitions) {
+    for (const symbol in currentState.transitions) {
+      // Handle zero-width assertions (\b, ^, $)
+      if (symbol === '\\b' || symbol === '^' || symbol === '$') {
+        let matched = false;
+        if (symbol === '\\b') {
+          const prevChar = charIndex > 0 ? tokenValue[charIndex - 1] : ' ';
+          const nextChar = charIndex < tokenValue.length ? tokenValue[charIndex] : ' ';
+          const isWordPrev = /\w/.test(prevChar);
+          const isWordNext = /\w/.test(nextChar);
+          matched = (isWordPrev && !isWordNext) || (!isWordPrev && isWordNext);
+        } else if (symbol === '^') {
+          matched = (charIndex === 0);
+        } else if (symbol === '$') {
+          matched = (charIndex === tokenValue.length);
+        }
+
+        if (matched) {
+          for (const nextState of currentState.transitions[symbol]) {
+            path.push({ from: currentState.id, label: symbol, to: nextState.id });
+            const res = dfs(nextState, charIndex, path); // Zero-width: do NOT increment charIndex!
+            if (res) return res;
+            path.pop();
+          }
+        }
+        continue;
+      }
+
+      // Handle normal character transitions
+      if (charIndex < tokenValue.length) {
+        const char = tokenValue[charIndex];
         try {
           const regex = new RegExp(`^${symbol}$`);
           if (regex.test(char)) {
