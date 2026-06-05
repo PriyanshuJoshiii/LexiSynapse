@@ -195,7 +195,7 @@ Install the following:
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/lexisynapse.git
+git clone https://github.com/PriyanshuJoshiii/LexiSynapse.git
 cd lexisynapse
 ```
 
