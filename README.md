@@ -1,14 +1,24 @@
 # ⚡ LexiSynapse – Mini Lexical Analyzer, NFA Visualizer & AI Compiler Assistant
 
+![Vite](https://img.shields.io/badge/Vite-Build_Tool-purple)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-Styling-blue)
+![Ollama](https://img.shields.io/badge/Ollama-qwen2.5--coder%3A7b-black)
+![Gemini](https://img.shields.io/badge/Gemini-3.5_Flash-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+> Interactive Compiler Design Platform featuring Lexical Analysis, Thompson's NFA Construction, DFA Visualization, Ollama-powered Code Completion, and Gemini-based AI Assistance.
+
 LexiSynapse is a modern, interactive compiler design learning platform that combines **Lexical Analysis**, **Automata Theory**, and **AI-powered assistance** into a single web application. It allows students and educators to visualize how source code is tokenized, how Regular Expressions are transformed into NFAs using Thompson's Construction, and how Large Language Models can assist in compiler design workflows.
 
 Built entirely on the client side with modern web technologies, LexiSynapse transforms traditionally theoretical compiler concepts into an engaging visual learning experience.
-
 ---
 
 ## 📸 Preview
 
----<img width="1703" height="1016" alt="Screenshot 2026-06-05 at 7 28 10 PM" src="https://github.com/user-attachments/assets/a9adaf81-9f94-4725-8010-6adae7e6f86c" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a9adaf81-9f94-4725-8010-6adae7e6f86c" alt="LexiSynapse Preview" width="100%">
+</p>
 ## ✨ Features
 
 ### 🔍 Lexical Analysis Engine
@@ -222,6 +232,18 @@ LexiSynapse bridges the gap between theoretical compiler design and practical im
 
 ---
 
+## 🚀 Project Highlights
+
+- Built a complete Lexical Analyzer from scratch using JavaScript.
+- Implemented Thompson's Construction for Regex → NFA conversion.
+- Developed DFA generation and interactive automata visualization.
+- Integrated Ollama (Qwen2.5-Coder 7B) for local AI code completion.
+- Integrated Gemini API for compiler theory and regex assistance.
+- Designed a modern dark-themed educational interface using Tailwind CSS.
+- Entirely client-side architecture with no backend dependency.
+
+---
+
 ## 🔮 Future Enhancements
 
 * DFA generation and minimization.
@@ -233,6 +255,55 @@ LexiSynapse bridges the gap between theoretical compiler design and practical im
 * Exportable automata diagrams.
 * Multi-language compiler support.
 
+---
+
+## ⚠️ Important Notes
+
+* A live demo link to the project is available in the repository description.
+* To use the **Lexi AI Assistant**, users must provide their own **Google Gemini API Key**.
+* AI-powered code autocompletion requires **Ollama** to be installed and running locally.
+* The default completion model used is **qwen2.5-coder:7b**.
+* Ensure the Ollama server is active at `http://localhost:11434` before using the autocomplete feature.
+* If Ollama is not running, the lexical analysis, NFA/DFA visualization, and other core compiler functionalities will continue to work normally.
+
+---
+
+## 🌐 Live Demo
+
+Try LexiSynapse here:
+
+[Live Demo](https://lexisynapse.vercel.app)
+
+## 🏗️ Architecture
+
+```text
+                    User Input
+                         │
+                         ▼
+               Lexical Analyzer
+                         │
+                         ▼
+                 Token Generation
+                         │
+                         ▼
+          Regex → Thompson Construction
+                         │
+                         ▼
+                 NFA Generation
+                         │
+                         ▼
+                DFA Generation
+                         │
+                         ▼
+                DFA Visualization
+
+────────────────────────────────────
+
+AI Layer
+
+├── Ollama (Local Code Completion)
+└── Gemini (Lexi AI Assistant)
+```
 ---
 
 ## 📄 License
@@ -248,3 +319,4 @@ This project is licensed under the MIT License.
 B.Tech Computer Science Engineering
 
 Passionate about Compiler Design, Machine Learning, Artificial Intelligence, and Interactive Educational Tools.
+
